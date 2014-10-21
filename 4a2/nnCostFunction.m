@@ -74,6 +74,7 @@ for i = 1:m
 end
 
 J = sum(sum(-yf.*log(hx)-(1-yf).*log(1-hx)))/m;
+J += (lambda/(2*m)).*(sum(sum(Theta1.^2)(2:end))+sum(sum(Theta2.^2)(2:end)));
 
 
 % -------------------------------------------------------------
