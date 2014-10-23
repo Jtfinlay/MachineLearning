@@ -64,8 +64,8 @@ Theta2_grad = zeros(size(Theta2));
 X = [ones(m, 1) X];
 
 % Calculate hx
-z2 = [ones(m,1) sigmoid(X*Theta1')];
-hx = sigmoid(z2*Theta2');
+a2 = [ones(m,1) sigmoid(X*Theta1')];
+hx = sigmoid(a2*Theta2');
 
 % Format y
 yf = zeros(m, size(Theta2,1));
@@ -73,8 +73,25 @@ for i = 1:m
     yf(i,y(i,1)) = 1;
 end
 
+% Cost function
 J = sum(sum(-yf.*log(hx)-(1-yf).*log(1-hx)))/m;
 J += (lambda/(2*m)).*(sum(sum(Theta1.^2)(2:end))+sum(sum(Theta2.^2)(2:end)));
+
+% Backpropagation
+z2 = X*Theta1';
+a2 = [ones(m,1) sigmoid(z2)];
+z3 = a2*Theta2';
+a3 = sigmoid(z3);
+
+d3 = a3 - yf;
+d2 = d3 * Theta2 .* sigmoidGradient([ones(m,1) z2]);
+d2 = d2(:,2:end);
+
+Theta1_grad = d2'*X./m;
+Theta2_grad = (d3'*a2)./m;
+
+Theta1_grad(:,2:end) += (lambda/m).*Theta1(:,2:end);
+Theta2_grad(:,2:end) += (lambda/m).*Theta2(:,2:end);
 
 
 % -------------------------------------------------------------
