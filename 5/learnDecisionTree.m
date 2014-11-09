@@ -131,10 +131,8 @@ function tree = learnDecisionTree(examples, attribute, default)
     %              the majority value of the examples
     %     c.) add branch to tree with label vi and subtree
     %tree.children = zeros(size(unique(examples(:,tree.attribute))),1);
-    tmp(size(tree.attribute.value),1) = struct;
-    tree.children = tmp;
+    tree.children = cell(size(tree.attribute.value),1);
     for j=1:size(tree.attribute.value',1),
-        j
         value = tree.attribute.value(j);
         value_rows = find(examples(:,best_i)==value);
 
