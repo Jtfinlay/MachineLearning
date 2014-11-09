@@ -77,24 +77,51 @@ function tree = learnDecisionTree(examples, attribute, default)
 
     % If there are no examples to classify, return
     num_examples = size(examples(:,end),1);
+    if num_examples == 0
+      return
+    end
     
     %% 1.) If all examples have the same classification, create a 
     %      tree leaf node with that classification and return
-
-    % <ENTER YOUR CODE HERE>
+    class_labels = examples(:,end);
+    if (size(unique(class_labels),1) == 1),
+        tree.isleaf = 1;
+        tree.class = unique(class_labels);
+        tree.num_0 = (tree.class==0)*num_examples;
+        tree.num_1 = (tree.class==1)*num_examples;
+        tree.num_tot = num_examples;
+        return
+    end
         
     %% 2.) If attributes is empty, create a leaf node with the
     %      majority classification and return.
     
-    % <ENTER YOUR CODE HERE>
+    if size(examples',1) <= 1,
+        tree.isleaf = 1;
+        tree.class = (sum(class_labels)>(size(examples,1)/2))*1; % majority
+        tree.num_0 = size(class_labels,1)-sum(class_labels);
+        tree.num_1 = sum(class_labels);
+        tree.num_tot = size(class_labels,1);
+        return
+    end
        
     %% 3.) Find the best attribute -- the attribute with the highest information gain
     % 
-    % <ENTER YOUR CODE HERE>
+    gains = zeros(size(examples(1,:))-1);
+    for j=1:size(gains',1),
+        gains(j) = gain(j, unique(examples(:,j)), examples);
+    end
+    best = max(gains);
     
     %% 4.) Make a non-leaf tree node with root 'best'
     % 
-    % <ENTER YOUR CODE HERE>
+    tree.attribute = attribute(find(gains==best));
+    tree.isleaf = 0;
+    tree.value = tree.attribute.value;
+    tree.num_0 = size(class_labels,1)-sum(class_labels);
+    tree.num_1 = sum(class_labels);
+    tree.num_tot = size(class_labels,1);
+    
     
     %% 5.) For each value v_i that the best attribute can take, do the following:
     %     a.) examples_i <-- elements of examples where the best attribute has value v_i
@@ -103,6 +130,17 @@ function tree = learnDecisionTree(examples, attribute, default)
     %              all attributes but the best
     %              the majority value of the examples
     %     c.) add branch to tree with label vi and subtree
+    %tree.children = zeros(size(unique(examples(:,tree.attribute))),1);
+    tmp(size(tree.attribute.value),1) = struct;
+    tree.children = tmp;
+    for j=1:size(size(tree.attribute.value)),
+        value = tree.attribute.value(j);
+        value_rows = find(examples(:,find(gains==best))==value);
+        examples_i = examples(value_rows,:);
+        examples_i(:,(gains==best)) = [];
+        
+        tree.children(j) = learnDecisionTree(examples_i, attribute, default);
+    end
  
     return
 end
@@ -116,9 +154,18 @@ end
 %                           the information gain
 %% 
 function value = gain(i, attribute_vals, examples)
-%      <ENTER CODE HERE>
-end
 
+    attribute = examples(:,i);
+    classes = examples(:,end);
+    
+    value = 0;
+    for j=1:size(attribute_vals),
+       rows = find(attribute==attribute_vals(j));
+       en = entropy(sum(classes(rows)), size(classes(rows),1)-sum(classes(rows)));
+       value += en*size(rows,1)/size(classes,1);
+    end
+    %value *= -1;
+end
 
 %% You may wish to have an entropy function that...
 %  Computes entropy when given:
@@ -126,5 +173,10 @@ end
 %        n               - the number of class = 0 examples
 %%
 function en = entropy(p,n)
-%        <ENTER CODE HERE>
+
+    p1 = p/(p+n);
+    p2 = n/(p+n);
+
+    en = -(p1.*log2(p1)+p2.*log2(p2));
+
 end
