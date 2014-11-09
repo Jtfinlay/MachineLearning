@@ -6,14 +6,20 @@ function [classification] = classify(tree, instance)
 % Outputs:
 %       classification     - class assigned by tree, '0' or '1'
 
+classification = -1;
 
 % Case 1: You are at a leaf. 
 if tree.isleaf
-%   <ENTER YOUR CODE HERE>
+
+    classification = tree.class;
     
 % Case 2: You aren't at a leaf.
 else 
-%   <ENTER YOUR CODE HERE> 
+
+    value = instance(tree.attribute.id);
+    child = tree.children{find(cellfun(@(x) x.label==value, tree.children))};
+    classification = classify(child,instance);
+
 end
  
 return
