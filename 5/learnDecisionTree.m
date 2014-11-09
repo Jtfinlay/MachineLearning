@@ -96,7 +96,7 @@ function tree = learnDecisionTree(examples, attribute, default)
     %% 2.) If attributes is empty, create a leaf node with the
     %      majority classification and return.
     
-    if size(examples',1) <= 1,
+    if size(attribute',1) == 0,
         tree.isleaf = 1;
         tree.class = (sum(class_labels)>(size(examples,1)/2))*1; % majority
         tree.num_0 = size(class_labels,1)-sum(class_labels);
@@ -111,11 +111,11 @@ function tree = learnDecisionTree(examples, attribute, default)
     for j=1:size(gains',1),
         gains(j) = gain(j, unique(examples(:,j)), examples);
     end
-    best = max(gains);
+    [best, best_i] = max(gains);
     
     %% 4.) Make a non-leaf tree node with root 'best'
     % 
-    tree.attribute = attribute(find(gains==best));
+    tree.attribute = attribute(best_i);
     tree.isleaf = 0;
     tree.value = tree.attribute.value;
     tree.num_0 = size(class_labels,1)-sum(class_labels);
@@ -133,13 +133,18 @@ function tree = learnDecisionTree(examples, attribute, default)
     %tree.children = zeros(size(unique(examples(:,tree.attribute))),1);
     tmp(size(tree.attribute.value),1) = struct;
     tree.children = tmp;
-    for j=1:size(size(tree.attribute.value)),
+    for j=1:size(tree.attribute.value',1),
+        j
         value = tree.attribute.value(j);
-        value_rows = find(examples(:,find(gains==best))==value);
+        value_rows = find(examples(:,best_i)==value);
+
         examples_i = examples(value_rows,:);
-        examples_i(:,(gains==best)) = [];
+        examples_i(:,best_i) = [];
+
+        attribute_i = attribute;
+        attribute_i(:,best_i) = [];
         
-        tree.children(j) = learnDecisionTree(examples_i, attribute, default);
+        tree.children(j) = learnDecisionTree(examples_i, attribute_i, default);
     end
  
     return
@@ -164,7 +169,7 @@ function value = gain(i, attribute_vals, examples)
        en = entropy(sum(classes(rows)), size(classes(rows),1)-sum(classes(rows)));
        value += en*size(rows,1)/size(classes,1);
     end
-    %value *= -1;
+    value *= -1;
 end
 
 %% You may wish to have an entropy function that...
