@@ -22,5 +22,9 @@ alpha = zeros(T, k);
 
 
 %Your code goes here
-
+alpha(1,:) = phi .* B(O(1),:); 
+for i=2:T,
+  alpha(i,:) = (alpha(i-1,:) * A) .* B(O(i),:);
 end
+
+P = sum(alpha');

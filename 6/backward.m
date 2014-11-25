@@ -20,7 +20,8 @@ beta = zeros(T, k);
 
 
 %Your code goes here 
-
-
-
+beta(T,:) = [1,1];
+for j=1:T-1,
+  i = T-j;
+  beta(i,:) = (beta(i+1,:) * A) .* B(O(i+1),:);
 end

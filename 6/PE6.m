@@ -20,30 +20,42 @@ phi_0 = [0.5 0.5];
 
 fprintf('(a) P(D_1)')
 
-%phi=
+phi = phi_0 * A;
 
 %% Uncomment this portion to use appropriate variables  
 
-%[alpha, P_O] = forward(O, phi, A, B);
+[alpha, P_O] = forward(O, phi, A, B);
 
-%beta = backward(O, A, B);
+beta = backward(O, A, B);
 
-%[dstar, pstar] = viterbi(O, phi, A, B);
+dstar = viterbi(O, phi, A, B);
 
 %% Now answer the Questions:
 
 % (b): P(D_t = r | S_1:t)
 fprintf('(b): P(D_t = r | S_1:t)')
 % alpha is needed here
+b = sum(alpha(:,2))
 
 % (c): P(D_t = r | S_1:10)
 fprintf('(c): P(D_t = r | S_1:10)')
 % gamma is needed here (See Eqn 27 in Rabiner 1989 for details)
+c = sum(beta(:,2))
 
 % (d): argmax_d P(D=d | S_1:10)
 fprintf('(d): argmax_d P(D=d | S_1:10)\n')
 % use viterbi algorithm
+d = dstar
 
 % (e): P_+L(S_1:10) and P_-L(S_1:10)
-fprintf('(e): P_+L(S_1:10) and P_-L(S_1:10)')
+fprintf('(e): P_+L(S_1:10) and P_-L(S_1:10)\n')
 A_L = [0.75 0.25; 0.05 0.95];
+
+[alpha, P_O] = forward(O, phi, A_L, B);
+beta = backward(O, A_L, B);
+dstar = viterbi(O, phi, A_L, B);
+b = sum(alpha(:,2))
+c = sum(beta(:,2))
+d = dstar
+
+

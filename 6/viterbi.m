@@ -17,8 +17,13 @@ T = length(O); % size of observation sequence
 m= size(B,1);  % number of possible observed values
 k = size(A,1);  % number of possible states
 dstar=zeros(1,T);
+d = zeros(T,2);
 
 
 %Your code goes here
-
+d(1,:) = phi.*B(O(1),:);
+dstar(1) = 0;
+for i=2:T,
+  d(i,:) = max(d(i-1,:)*A).*B(O(i),:);
+  [tmp, dstar(i)] =  max(d(i-1,:)*A);
 end
